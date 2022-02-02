@@ -1,7 +1,7 @@
 import json
-
 import requests
 from requests.exceptions import ConnectionError, Timeout, HTTPError
+from datetime import datetime, timezone
 from logging import getLogger
 from trashcan_func.config_init import Config
 
@@ -15,6 +15,7 @@ class trashcan_mon:
     target_gateway_url = "http://192.168.12.1/"
     radio_info_url = target_gateway_url + "fastmile_radio_status_web_app.cgi"
     inet_stats_url = target_gateway_url + "statistics_status_web_app.cgi"
+    lan_stats_url = target_gateway_url + "lan_status_web_app.cgi"
     request_timeout = 8
     header = {'Accept': 'application/json',
                'Cache-Control': 'no-cache',
@@ -68,11 +69,11 @@ class trashcan_mon:
         try:
             requests.get(self.target_gateway_url, timeout=self.request_timeout, headers=header)
         except ConnectionError as err:
-            raise Exception(err)
+            raise ConnectionError(err)
         except Timeout as err:
-            raise Exception(err)
+            raise Timeout(err)
         except HTTPError as err:
-            raise Exception(err)
+            raise HTTPError(err)
         else:
             return True
         return False
@@ -86,34 +87,133 @@ class trashcan_mon:
         try:
             data = requests.get(self.radio_info_url, timeout=self.request_timeout, headers=self.header)
         except ConnectionError as err:
-            raise Exception(err)
+            raise ConnectionError(err)
         except Timeout as err:
-            raise Exception(err)
+            raise Timeout(err)
         except HTTPError as err:
-            raise Exception(err)
+            raise HTTPError(err)
         else:
-            test = json.loads(data.text)
-            testb = data.text
-            print(test['apn_cfg'])
+            return json.loads(data.text)
 
+    def get_inet_data(self):
+        """
+        This will collect data related to the modems interface statistics , and will return a dict of that information.
+        :return: dict: interface_statistics
+        """
 
-        return data
+        try:
+            interface_statistics = requests.get(self.inet_stats_url, timeout=self.request_timeout, headers=self.header)
+        except ConnectionError as err:
+            raise ConnectionError(err)
+        except Timeout as err:
+            raise Timeout(err)
+        except HTTPError as err:
+            raise HTTPError(err)
+        else:
+            return json.loads(interface_statistics.text)
+
+    def get_lanstat_data(self):
+        """
+        This will collect data related to the modems lan status, and will return a dict of that information.
+        :return: dict: lan_status
+        """
+
+        try:
+            lan_status = requests.get(self.inet_stats_url, timeout=self.request_timeout, headers=self.header)
+        except ConnectionError as err:
+            raise ConnectionError(err)
+        except Timeout as err:
+            raise Timeout(err)
+        except HTTPError as err:
+            raise HTTPError(err)
+        else:
+            return json.loads(lan_status.text)
 
     def start_test(self):
+
+        """
+        This will check the connection to the gateway can be established, and then proceeds to collect information from
+        each of the modems api end points.
+        :return: Returns a dict of results and a time stamp. Using the following schema.
+            {
+                "timestamp" : datetime.now(tz=utc)
+                "gateway_check" : True/False,
+                "radio_data" : radio_data_results,
+                "interface_data" : interface_statistics_results
+                "lan_status" : lan_status_results
+            }
+        """
+
+        results = {
+            "timestamp" : datetime.now(tz=timezone.utc),
+            "gateway_check" : False
+        }
+
         # Check Connection to gateway,
         try:
             self.check_gateway_url()
-        except Exception as err:
+        except ConnectionError as err:
             self.log.critical(f"Could not establish connection to gateway: { str(err) }")
-            raise Exception(err)
+            raise ConnectionError(err)
+        except Timeout as err:
+            self.log.critical(f"Connection Timed out while trying to access gateway: { str(err) }")
+            raise Timeout(err)
+        except HTTPError as err:
+            self.log.critical(f"Gateway responded with a invalid status code: { str(err) }")
+            raise HTTPError(err)
+        else:
+            results["gateway_check"] = True
 
-        # Get Radio Info and store in dictionary object for parsing late
-        print(self.radio_info_url)
+        # Get Radio Info
+        try:
+            radio_data = self.get_radio_data()
+        except ConnectionError as err:
+            self.log.critical(f"Could not access radio information: {str(err)}")
+            raise ConnectionError(err)
+        except Timeout as err:
+            self.log.critical(f"Connection for radio information timed out: {str(err)}")
+            raise Timeout(err)
+        except HTTPError as err:
+            self.log.critical(f"Request for radio information returned an invalid status code: {str(err)}")
+            raise HTTPError(err)
+        else:
+            results['radio_data'] = radio_data
+
+        # Get Interface Statistics
+        try:
+            interface_data = self.get_inet_data()
+        except ConnectionError as err:
+            self.log.critical(f"Could not access interface information: {str(err)}")
+            raise ConnectionError(err)
+        except Timeout as err:
+            self.log.critical(f"Connection for interface information timed out: {str(err)}")
+            raise Timeout(err)
+        except HTTPError as err:
+            self.log.critical(f"Request for interface information returned an invalid status code: {str(err)}")
+            raise HTTPError(err)
+        else:
+            results['interface_data'] = interface_data
 
         # Get Web Usage
+        try:
+            lan_status = self.get_lanstat_data()
+        except ConnectionError as err:
+            self.log.critical(f"Could not access lan status information: {str(err)}")
+            raise ConnectionError(err)
+        except Timeout as err:
+            self.log.critical(f"Connection for lan status information timed out: {str(err)}")
+            raise Timeout(err)
+        except HTTPError as err:
+            self.log.critical(f"Request for lan status information returned an invalid status code: {str(err)}")
+            raise HTTPError(err)
+        else:
+            results['lan_status'] = lan_status
 
+        return results
 
 
 if __name__ == "__main__":
     tcm = trashcan_mon()
-    test = tcm.get_radio_data()
+
+    results = tcm.start_test()
+    print(results)
