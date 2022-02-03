@@ -1,0 +1,7 @@
+{
+  "sleep_time" : 30,
+  "debug" : true,
+  "log_level" : 10,
+  "log_path" : "./logs/",
+  "target_gateway_url" : "http://192.168.12.1"
+}

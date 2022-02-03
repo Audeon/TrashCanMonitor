@@ -3,11 +3,11 @@ import requests
 from requests.exceptions import ConnectionError, Timeout, HTTPError
 from datetime import datetime, timezone
 from logging import getLogger
-from trashcan_func.config_init import Config
+from .config_init import Config
 
-class trashcan_mon:
+class TrashcanMon:
     """
-        Trashcan_mon is used to gather information about the Home Internet Device.
+        TrashcanMon is used to gather information about the Home Internet Device.
     """
     config = None
     log = None
@@ -44,6 +44,9 @@ class trashcan_mon:
 
         if "target_gateway_url" in kwargs:
             self.target_gateway_url = kwargs.get("target_gateway_url")
+
+        if self.config and self.config.target_gateway_url :
+            self.target_gateway_url = self.config.target_gateway_url
 
         if "request_timeout" in kwargs:
             if isinstance(kwargs.get("request_timeout"), int):
@@ -213,7 +216,7 @@ class trashcan_mon:
 
 
 if __name__ == "__main__":
-    tcm = trashcan_mon()
+    tcm = TrashcanMon()
 
     results = tcm.start_test()
     print(results)
