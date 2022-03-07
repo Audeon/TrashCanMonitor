@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  tcmongodb:
+    image: 'mongo' #'mongo:bionic'
+    container_name: 'tcmongodb'
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: mongogo
+
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - mongo-volume:/data/db
+    ports:
+      - 27017:27017
+
+  trashcanmon:
+    image: trashcanmon:latest
+    container_name: "trashcanmon"
+    restart: always
+    volumes:
+      - logs:/logs
+
+volumes:
+  logs:
+  mongo-volume:

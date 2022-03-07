@@ -8,18 +8,16 @@ Monitors your [`5G21-12W-A High-Speed Internet Gateway device`](https://www.t-mo
 This software may need to be updated for newer gateway device firmware versions. It has been tested with version 1.2101.00.1609.
 
 # Links
-*  [`RevisedTrashCanMonitor`](https://github.com/Audeon/TrashCanMonitor.git)
-*  [`TrashCanMonitor`](https://github.com/EricTerrell/TrashCanMonitor)
+*  [`RevisedTrashCanMonitor`](https://github.com/Audeon/TrashCanMonitor.git) - This version 
+*  [`TrashCanMonitor`](https://github.com/EricTerrell/TrashCanMonitor) - Original version by EricTerrell.
 
 # Quick Start
 
 Install instructions coming soon.
 
 # License
-
 [`GPL3`](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 
-# Eric Bergmans - 5G21-12W-A
-
+# A typical 5G21-12W-A
 ![`5G21-12W-A High-Speed Internet Gateway`](https://ericbt.com/uploaded_images/5G21-12W-A-SMALL.jpg "5G21-12W-A")

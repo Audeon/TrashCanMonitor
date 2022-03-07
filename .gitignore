@@ -16,6 +16,6 @@ env.bak/
 venv.bak/
 
 # Jetbrains
-.idea
-
+.idea/
+vcs.xml
 *.log

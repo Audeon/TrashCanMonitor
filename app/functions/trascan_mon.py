@@ -1,7 +1,6 @@
 import json
 import requests
 from requests.exceptions import ConnectionError, Timeout, HTTPError
-from datetime import datetime, timezone
 from logging import getLogger
 from .config_init import Config
 
@@ -137,18 +136,17 @@ class TrashcanMon:
         """
         This will check the connection to the gateway can be established, and then proceeds to collect information from
         each of the modems api end points.
-        :return: Returns a dict of results and a time stamp. Using the following schema.
+        :return: Returns a dict of ResultsSchema and a time stamp. Using the following schema.
             {
                 "timestamp" : datetime.now(tz=utc)
                 "gateway_check" : True/False,
-                "radio_data" : radio_data_results,
-                "interface_data" : interface_statistics_results
-                "lan_status" : lan_status_results
+                "radio_raw_data" : radio_data_results,
+                "interface_data_raw" : interface_statistics_results
+                "lan_status_raw" : lan_status_results
             }
         """
 
         results = {
-            "timestamp" : datetime.now(tz=timezone.utc),
             "gateway_check" : False
         }
 
@@ -180,7 +178,7 @@ class TrashcanMon:
             self.log.critical(f"Request for radio information returned an invalid status code: {str(err)}")
             raise HTTPError(err)
         else:
-            results['radio_data'] = radio_data
+            results['radio_raw_data'] = radio_data
 
         # Get Interface Statistics
         try:
@@ -195,7 +193,7 @@ class TrashcanMon:
             self.log.critical(f"Request for interface information returned an invalid status code: {str(err)}")
             raise HTTPError(err)
         else:
-            results['interface_data'] = interface_data
+            results['interface_data_raw'] = interface_data
 
         # Get Web Usage
         try:
@@ -210,7 +208,7 @@ class TrashcanMon:
             self.log.critical(f"Request for lan status information returned an invalid status code: {str(err)}")
             raise HTTPError(err)
         else:
-            results['lan_status'] = lan_status
+            results['lan_status_raw'] = lan_status
 
         return results
 

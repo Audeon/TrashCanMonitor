@@ -1,7 +1,7 @@
 import logging
 import json
 from os import environ, path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 class Config():
     PROBE_NAME="default"
@@ -9,12 +9,16 @@ class Config():
     CONFIG_PATH = "/code/config"
 
     log_level = 10
+    log_reset_time = None
+    log_reset_timer = { "days" : 0, "seconds" : 30, "minutes" : 0, "weeks" : 0 }
     log_path = "./logs/"
     log_format = '%(asctime)s %(name)s %(levelname)s %(message)s'
     log_encoding = 'utf-8'
 
     sleep_time = 60
     target_gateway_url = "http://192.168.12.1"
+    mongodb_uri = None
+
 
     def __init__(self, **kwargs):
         # Getting Configuration path from env or kwag.
@@ -61,17 +65,24 @@ class Config():
 
         if 'target_gateway_url' in config:
             self.target_gateway_url = config['target_gateway_url']
-
         if 'target_gateway_url' in kwargs:
             self.target_gateway_url = kwargs.get('target_gateway_url')
+
+        # Mongo configurations.
+        if 'mongodb_uri' in config:
+            self.mongodb_uri = config['mongodb_uri']
+        if 'mongodb_uri' in kwargs:
+            self.mongodb_uri = kwargs.get('mongodb_uri')
 
         self.start_new_log()
 
 
         logging.debug(f"config.json: {str(config)}")
 
+
     def start_new_log(self):
         # Logging basic setup.
+        self.log_reset_time = datetime.now(tz=timezone.utc) + timedelta(**self.log_reset_timer)
         self.log_path = path.abspath(self.log_path)
         log_name = f"{datetime.now(timezone.utc).strftime('%d%m%Y-%H%M%S')}.log"
         log_name = path.join(self.log_path, log_name)
