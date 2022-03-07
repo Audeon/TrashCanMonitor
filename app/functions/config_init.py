@@ -18,7 +18,7 @@ class Config():
     sleep_time = 60
     target_gateway_url = "http://192.168.12.1"
     mongodb_uri = None
-
+    results_db = "tcresults"
 
     def __init__(self, **kwargs):
         # Getting Configuration path from env or kwag.

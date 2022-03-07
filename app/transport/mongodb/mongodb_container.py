@@ -30,12 +30,20 @@ class MongoTransport():
         if "mongodb_uri" in kwargs:
             self.mongodb_uri = kwargs.get("mongodb_uri")
 
+        # DB Selection.
+        if self.config and self.config.results_db:
+            self.results_db = self.config.results_db
+        if environ.get("results_db"):
+            self.mongodb_uri = environ.get("results_db")
+        if "results_db" in kwargs:
+            self.results_db = kwargs.get("results_db")
+
         try:
             self.mongo_client = MongoClient(self.mongodb_uri)
         except Exception as err:
             raise Exception(err)
         else:
-            self.db_acc = self.mongo_client.tcresults
+            self.db_acc = self.mongo_client[self.results_db]
 
     def add_data(self, data: dict):
 
