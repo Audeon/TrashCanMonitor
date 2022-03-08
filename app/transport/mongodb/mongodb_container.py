@@ -12,6 +12,7 @@ class MongoTransport():
     mongodb_uri = "mongodb://user:password@mongodb:27017/database"
     mongo_client = None
     db_acc = None
+    db_collection = None
     recent_id = None
 
 
@@ -38,6 +39,18 @@ class MongoTransport():
         if "results_db" in kwargs:
             self.results_db = kwargs.get("results_db")
 
+        # Collection Selection.
+        if self.config and self.config.db_collection:
+            self.db_collection = self.config.db_collection
+        if environ.get("db_collection"):
+            self.db_collection = environ.get("db_collection")
+        if "db_collection" in kwargs:
+            self.db_collection = kwargs.get("db_collection")
+
+        self.log.debug(f"collection: {self.db_collection}")
+        self.log.debug(f"results_db: {self.results_db}")
+        self.log.debug(f"mongodb_uri: {self.mongodb_uri}")
+
         try:
             self.mongo_client = MongoClient(self.mongodb_uri)
         except Exception as err:
@@ -56,7 +69,7 @@ class MongoTransport():
             raise TypeError(f"data is type({ type(data) }), and should be type({type(dict())})")
 
         try:
-            results_added = self.db_acc.tcresults.insert_one(ResultsSchema(**data).dict(by_alias=True))
+            results_added = self.db_acc[self.db_collection].insert_one(ResultsSchema(**data).dict(by_alias=True))
         except Exception as err:
             self.log.critical(err)
             raise Exception(err)

@@ -6,5 +6,6 @@
   "target_gateway_url" : "http://192.168.12.1",
 
   "mongodb_uri": "mongodb://tc_usr:trashcan@tcmongodb:27017/tcresults",
-  "results_db" : "tcresults"
+  "results_db" : "tcresults",
+  "db_collection" : "modem_results"
 }

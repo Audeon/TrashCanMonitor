@@ -19,6 +19,7 @@ class Config():
     target_gateway_url = "http://192.168.12.1"
     mongodb_uri = None
     results_db = "tcresults"
+    db_collection = "tcresults"
 
     def __init__(self, **kwargs):
         # Getting Configuration path from env or kwag.
@@ -78,6 +79,11 @@ class Config():
             self.results_db = config['results_db']
         if 'results_db' in kwargs:
             self.results_db = kwargs.get('results_db')
+
+        if 'db_collection' in config:
+            self.db_collection = config['db_collection']
+        if 'db_collection' in kwargs:
+            self.db_collection = kwargs.get('db_collection')
 
         self.start_new_log()
 
