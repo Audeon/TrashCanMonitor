@@ -74,6 +74,11 @@ class Config():
         if 'mongodb_uri' in kwargs:
             self.mongodb_uri = kwargs.get('mongodb_uri')
 
+        if 'results_db' in config:
+            self.results_db = config['results_db']
+        if 'results_db' in kwargs:
+            self.results_db = kwargs.get('results_db')
+
         self.start_new_log()
 
 
