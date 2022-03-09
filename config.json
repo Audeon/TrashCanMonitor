@@ -1,5 +1,5 @@
 {
-  "trashcanmon_sleeptime" : 30,
+  "trashcanmon_sleep_time" : 30,
   "debug" : true,
   "log_level" : 10,
   "log_path" : "./logs/",
@@ -7,5 +7,5 @@
 
   "mongodb_uri": "mongodb://tc_usr:trashcan@tcmongodb:27017/tcresults",
   "results_db" : "tcresults",
-  "db_collection" : "modem_results"
+  "db_collection" : "results"
 }

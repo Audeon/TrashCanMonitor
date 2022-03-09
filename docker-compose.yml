@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   tcmongodb:
-    image: 'mongo' #'mongo:bionic'
+    image: 'mongo' #'mongo:bionic' for rpi.
     container_name: 'tcmongodb'
     restart: always
     environment:
