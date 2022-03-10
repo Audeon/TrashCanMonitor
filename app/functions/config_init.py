@@ -36,6 +36,10 @@ class Config():
             or kwarg else, defaults to /code/config/config.json
         :type config_path: String, optional
 
+        :param container_id: This is the id for the container a 3 letter identifier. Used as metafield for time series
+         databases. defaults to application initialis (tcm)
+        :type container_id: String, optional
+
         Logging
         -------
         This section lays out the parameters required for the logging part of this application.
@@ -99,7 +103,7 @@ class Config():
 
     """
 
-    CONTAINER_NAME = "TrashcanMonitor"
+    container_id = "tcm"
     config_path = "./config.json"
 
 
@@ -139,6 +143,15 @@ class Config():
                 print(f"Config Path: { str(Path(self.config_path)) }")
                 print(str(err))
                 raise Exception(str(err))
+
+        # Container_id is the meta field that is submitted for time series databases.
+        # TODO: Need to add testing to this container_id
+        if 'container_id' in config:
+            self.container_id = config['container_id']
+        if environ.get('container_id'):
+            self.container_id = environ.get('container_id')
+        if 'container_id' in kwargs:
+            self.container_id = kwargs.get('container_id')
 
         # Log Level
         if 'log_level' in config:

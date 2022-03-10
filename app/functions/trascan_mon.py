@@ -10,7 +10,7 @@ class TrashcanMon:
     """
     config = None
     log = None
-
+    container_id = "tcm"
     target_gateway_url = "http://192.168.12.1/"
     radio_info_url = target_gateway_url + "fastmile_radio_status_web_app.cgi"
     inet_stats_url = target_gateway_url + "statistics_status_web_app.cgi"
@@ -41,11 +41,22 @@ class TrashcanMon:
             if isinstance(kwargs.get("from_config"), Config):
                 self.config = kwargs.get("from_config")
 
+                if self.config.target_gateway_url:
+                    self.target_gateway_url = self.config.target_gateway_url
+
+                if self.config.container_id:
+                    self.container_id = self.config.container_id
+
+                if self.config.request_timeout:
+                    if isinstance(self.config.request_timeout, int):
+                        self.request_timeout = self.config.request_timeout
+
+        # kwargs will take priority over configuration and env
         if "target_gateway_url" in kwargs:
             self.target_gateway_url = kwargs.get("target_gateway_url")
+        if "container_id" in kwargs:
+            self.container_id = kwargs.get("container_id")
 
-        if self.config and self.config.target_gateway_url :
-            self.target_gateway_url = self.config.target_gateway_url
 
         if "request_timeout" in kwargs:
             if isinstance(kwargs.get("request_timeout"), int):
@@ -147,6 +158,7 @@ class TrashcanMon:
         """
 
         results = {
+            "container_id": self.container_id,
             "gateway_check" : False
         }
 

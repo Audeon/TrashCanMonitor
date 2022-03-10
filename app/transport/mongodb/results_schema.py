@@ -8,6 +8,7 @@ class ResultsSchema(BaseModel):
     """
     """
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+    container_id: str
     gateway_check: StrictBool
     radio_raw_data: Optional[dict] = None
     interface_data_raw: Optional[dict] = None
