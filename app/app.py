@@ -7,8 +7,7 @@ from functions.config_init import Config
 
 
 if __name__ == "__main__":
-    config_path = "."
-    config = Config(config_path=config_path)
+    config = Config()
     log = getLogger(__name__)
 
     while(True):

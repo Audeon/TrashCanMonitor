@@ -2,6 +2,7 @@ import logging
 import json
 import os
 from os import environ, path
+from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 class Config():
@@ -99,7 +100,7 @@ class Config():
     """
 
     CONTAINER_NAME = "TrashcanMonitor"
-    config_path = "/code/config/config.json"
+    config_path = "./config.json"
 
 
     log_level = 10
@@ -129,12 +130,13 @@ class Config():
             if 'config_path' in kwargs:
                 self.config_path = kwargs.get('config_path')
 
+            print((self.config_path))
             try:
-                with open(path.abspath(self.config_path), "r") as f:
+                with open(Path(self.config_path), "r") as f:
                     config = json.load(f)
             except Exception as err:
                 print(f"Container Name: { self.CONTAINER_NAME }")
-                print(f"Config Path: { str(path.abspath(path.join(self.config_path, 'config.json'))) }")
+                print(f"Config Path: { str(Path(self.config_path)) }")
                 print(str(err))
                 raise Exception(str(err))
 

@@ -19,8 +19,11 @@ services:
     image: trashcanmon:latest
     container_name: "trashcanmon"
     restart: always
+    environment:
+      config_path: "/code/config/config.json"
     volumes:
       - logs:/logs
+      - ./config.json:/code/config/config.json:ro
 
 volumes:
   logs:
