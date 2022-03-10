@@ -1,4 +1,5 @@
 import os
+import shutil
 import unittest
 from os import path
 from app.functions.config_init import Config
@@ -11,9 +12,11 @@ class TestConfig(unittest.TestCase):
     def rm_created_dir(self, path):
         if os.path.isdir(path):
             try:
-                os.rmdir(path)
+                shutil.rmtree(path)
             except Exception as err:
                 raise Exception(err)
+            else:
+                print(f"Removed Dir: {path}")
 
     def test_initalize_with_full_config_file(self):
         perfect_config = path.join(self.config_dir, "test_full_config.json")
@@ -62,6 +65,8 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.results_db, "tcresults", "config.results_db, was unset.")
         self.assertEqual(config.db_collection, "modem_results", "config.db_collection, was unset.")
 
+        self.rm_created_dir(config.log_path)
+
     def test_initalize_config_file_kwargs_overide(self):
         perfect_config = path.join(self.config_dir, "test_full_config.json")
         config = Config(
@@ -92,6 +97,8 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.results_db, "tcresults1", "config.results_db, was unset.")
         self.assertEqual(config.db_collection, "results", "config.db_collection, was unset.")
 
+        self.rm_created_dir(config.log_path)
+
     def test_initalize_defaults(self):
 
         config = Config(no_config_file=True)
@@ -108,6 +115,8 @@ class TestConfig(unittest.TestCase):
                          "config.mongodb_uri, was unset.")
         self.assertEqual(config.results_db, "tcresults", "config.results_db, was unset.")
         self.assertEqual(config.db_collection, "results", "config.db_collection, was unset.")
+
+        self.rm_created_dir(config.log_path)
 
 
 
