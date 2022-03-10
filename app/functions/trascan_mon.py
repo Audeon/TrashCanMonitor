@@ -47,9 +47,9 @@ class TrashcanMon:
                 if self.config.container_id:
                     self.container_id = self.config.container_id
 
-                if self.config.request_timeout:
-                    if isinstance(self.config.request_timeout, int):
-                        self.request_timeout = self.config.request_timeout
+                # if self.config.request_timeout:
+                #     if isinstance(self.config.request_timeout, int):
+                #         self.request_timeout = self.config.request_timeout
 
         # kwargs will take priority over configuration and env
         if "target_gateway_url" in kwargs:
