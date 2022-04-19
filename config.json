@@ -1,11 +1,12 @@
 {
-  "trashcanmon_sleep_time" : 30,
-  "debug" : true,
+  "trashcan_sleep_time": 15,
   "log_level" : 10,
   "log_path" : "./logs/",
-  "target_gateway_url" : "http://192.168.12.1",
-
-  "mongodb_uri": "mongodb://tc_usr:trashcan@tcmongodb:27017/tcresults",
-  "results_db" : "tcresults",
-  "db_collection" : "results"
+  "target_gateway_url" : "http://192.168.12.1/",
+  "transport": "api",
+  "mongo_user" : "tc_usr",
+  "mongo_pw" : "trashcan",
+  "mongo_host" : "tcmongodb",
+  "mongo_auth" : "tcresults",
+  "mongo_db" : "tcresults"
 }

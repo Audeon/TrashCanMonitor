@@ -1,72 +1,36 @@
 import json
 import requests
 from requests.exceptions import ConnectionError, Timeout, HTTPError
-from logging import getLogger
-from .config_init import Config
+from logging import getLogger, Logger
+from app.functions import ConfigApp
 
-class TrashcanMon:
+__all__ = ['TrashcanMonitor']
+
+
+class TrashcanMonitor:
     """
-        TrashcanMon is used to gather information about the Home Internet Device.
+        TrashcanMonitor is used to gather information about the Home Internet Device.
     """
     config = None
-    log = None
-    container_id = "tcm"
-    target_gateway_url = "http://192.168.12.1/"
-    radio_info_url = target_gateway_url + "fastmile_radio_status_web_app.cgi"
-    inet_stats_url = target_gateway_url + "statistics_status_web_app.cgi"
-    lan_stats_url = target_gateway_url + "lan_status_web_app.cgi"
-    request_timeout = 8
+    log: Logger  = getLogger(__name__)
+    target_gateway_url: str = "http://192.168.12.1/"
+    radio_info_url: str = target_gateway_url + "fastmile_radio_status_web_app.cgi"
+    inet_stats_url: str = target_gateway_url + "statistics_status_web_app.cgi"
+    lan_stats_url: str = target_gateway_url + "lan_status_web_app.cgi"
+    request_timeout: int = 8
     header = {'Accept': 'application/json',
-               'Cache-Control': 'no-cache',
-               'Connection': 'close',
-               'User-Agent': 'TrashCanMonitor'}
+              'Cache-Control': 'no-cache',
+              'Connection': 'close',
+              'User-Agent': 'TrashcanMonitor'}
 
-    def __init__(self, **kwargs):
-        """
-        Construct a new trashcan_mon object. This can be initialized alone with its built in class defaults, or using
-        the Config() to gather a configuration file from the container volume and use its variables.
+    @classmethod
+    def from_config(cls, config: ConfigApp):
+        cls.log.debug(f"Starting {__name__} from config.")
+        cls.config = config
+        cls.target_gateway_url = config.target_gateway_url
+        return super().__new__(cls)
 
-        Keyword Args:
-            :param from_config: type: class: This should be an initialized Config() object.
-            :param target_gateway: type: Str: default: http://192.168.12.1: URL String for home internet modem managment page..
-            :param request_timeout: type: Int: default: 30: time out for requests in seconds.
-                :exception: TypeError: request_timeout must be an integer.
-
-        """
-
-        self.log = getLogger(__name__)
-
-        if "from_config" in kwargs:
-            # TODO: Add info to pull out of config
-            if isinstance(kwargs.get("from_config"), Config):
-                self.config = kwargs.get("from_config")
-
-                if self.config.target_gateway_url:
-                    self.target_gateway_url = self.config.target_gateway_url
-
-                if self.config.container_id:
-                    self.container_id = self.config.container_id
-
-                # if self.config.request_timeout:
-                #     if isinstance(self.config.request_timeout, int):
-                #         self.request_timeout = self.config.request_timeout
-
-        # kwargs will take priority over configuration and env
-        if "target_gateway_url" in kwargs:
-            self.target_gateway_url = kwargs.get("target_gateway_url")
-        if "container_id" in kwargs:
-            self.container_id = kwargs.get("container_id")
-
-
-        if "request_timeout" in kwargs:
-            if isinstance(kwargs.get("request_timeout"), int):
-                self.request_timeout = kwargs.get("request_timeout")
-            else:
-                raise TypeError("request_timeout must be an integer.")
-
-        self.log.info(f"{__name__} initialized and ready to test: {self.target_gateway_url}")
-
-    def check_gateway_url(self):
+    def check_gateway_url(self) -> bool:
         """
         This make a request to the target_gateway_url to determine if connection is possible
         :return: True on successful request
@@ -91,7 +55,7 @@ class TrashcanMon:
             return True
         return False
 
-    def get_radio_data(self):
+    def get_radio_data(self) -> dict:
         """
         This will collect data related to the hint modems radio, and will return a dict of that information.
         :return: dict: radio_information
@@ -108,7 +72,7 @@ class TrashcanMon:
         else:
             return json.loads(data.text)
 
-    def get_inet_data(self):
+    def get_inet_data(self) -> dict:
         """
         This will collect data related to the modems interface statistics , and will return a dict of that information.
         :return: dict: interface_statistics
@@ -125,7 +89,7 @@ class TrashcanMon:
         else:
             return json.loads(interface_statistics.text)
 
-    def get_lanstat_data(self):
+    def get_lanstat_data(self) -> dict:
         """
         This will collect data related to the modems lan status, and will return a dict of that information.
         :return: dict: lan_status
@@ -142,7 +106,8 @@ class TrashcanMon:
         else:
             return json.loads(lan_status.text)
 
-    def start_test(self):
+
+    def start_test(self) -> dict:
 
         """
         This will check the connection to the gateway can be established, and then proceeds to collect information from
@@ -158,21 +123,20 @@ class TrashcanMon:
         """
 
         results = {
-            "container_id": self.container_id,
-            "gateway_check" : False
+            "gateway_check": False
         }
 
         # Check Connection to gateway,
         try:
             self.check_gateway_url()
         except ConnectionError as err:
-            self.log.critical(f"Could not establish connection to gateway: { str(err) }")
+            self.log.critical(f"Could not establish connection to gateway: {str(err)}")
             raise ConnectionError(err)
         except Timeout as err:
-            self.log.critical(f"Connection Timed out while trying to access gateway: { str(err) }")
+            self.log.critical(f"Connection Timed out while trying to access gateway: {str(err)}")
             raise Timeout(err)
         except HTTPError as err:
-            self.log.critical(f"Gateway responded with a invalid status code: { str(err) }")
+            self.log.critical(f"Gateway responded with a invalid status code: {str(err)}")
             raise HTTPError(err)
         else:
             results["gateway_check"] = True
@@ -223,10 +187,3 @@ class TrashcanMon:
             results['lan_status_raw'] = lan_status
 
         return results
-
-
-if __name__ == "__main__":
-    tcm = TrashcanMon()
-
-    results = tcm.start_test()
-    print(results)
